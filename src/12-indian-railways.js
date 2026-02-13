@@ -38,12 +38,39 @@
  *
  * @example
  *   railwayReservation(
- *     [{ name: "Rahul", trainNumber: "12345", preferred: "ac3", fallback: "sleeper" }],
- *     [{ trainNumber: "12345", name: "Rajdhani", seats: { sleeper: 5, ac3: 0, ac2: 1, ac1: 0 } }]
+ *     [{ name: "Rahul", trainNumber: "12345", preferred: "ac3", fallback: "sleeper" }, .....],
+ *     [{ trainNumber: "12345", name: "Rajdhani", seats: { sleeper: 5, ac3: 0, ac2: 1, ac1: 0 }}, .....]
  *   )
  *   // ac3 has 0 seats, try fallback sleeper (5 seats), allocated!
  *   // => [{ name: "Rahul", trainNumber: "12345", class: "sleeper", status: "confirmed" }]
  */
 export function railwayReservation(passengers, trains) {
   // Your code here
+  if (!Array.isArray(passengers) || passengers.length === 0 || !Array.isArray(trains) || trains.length === 0) {
+    return [];
+  }
+
+  const results = [];
+
+  for (const passenger of passengers) {
+    const { name, trainNumber, preferred, fallback } = passenger;
+    const train = trains.find(t => t.trainNumber === trainNumber);
+
+    if (!train) {
+      results.push({ name, trainNumber, class: null, status: "train_not_found" });
+      continue;
+    }
+
+    if (train.seats[preferred] > 0) {
+      train.seats[preferred]--;
+      results.push({ name, trainNumber, class: preferred, status: "confirmed" }); 
+    } else if (train.seats[fallback] > 0) {
+      train.seats[fallback]--;
+      results.push({ name, trainNumber, class: fallback, status: "confirmed" });
+    } else {
+      results.push({ name, trainNumber, class: preferred, status: "waitlisted" });  
+    }
+  }
+    
+  return results;
 }
